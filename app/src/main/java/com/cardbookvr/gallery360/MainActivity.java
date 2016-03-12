@@ -5,11 +5,16 @@ import android.os.Bundle;
 import com.cardbookvr.renderbox.IRenderBox;
 import com.cardbookvr.renderbox.RenderBox;
 import com.cardbookvr.renderbox.Transform;
-import com.cardbookvr.renderbox.components.Cube;
+import com.cardbookvr.renderbox.components.Camera;
+import com.cardbookvr.solarsystem.RenderBoxExt.components.Sphere;
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 import com.google.vrtoolkit.cardboard.CardboardView;
 
 public class MainActivity extends CardboardActivity implements IRenderBox {
+
+    final int DEFAULT_BACKGROUND = R.drawable.sample360;
+
+    Sphere photosphere;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,10 +29,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     @Override
     public void setup() {
-        new Transform()
-                .setLocalPosition(0,0,7)
-                .setLocalRotation(45,60,0)
-                .addComponent(new Cube(true));
+        setupBackground();
     }
 
     @Override
@@ -39,4 +41,12 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     public void postDraw() {
 
     }
+
+    void setupBackground() {
+        photosphere = new Sphere(DEFAULT_BACKGROUND, false);
+        new Transform()
+                .setLocalScale(-Camera.Z_FAR, -Camera.Z_FAR, -Camera.Z_FAR)
+                .addComponent(photosphere);
+    }
+
 }
