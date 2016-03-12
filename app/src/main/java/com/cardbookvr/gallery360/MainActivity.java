@@ -12,7 +12,7 @@ import com.google.vrtoolkit.cardboard.CardboardView;
 
 public class MainActivity extends CardboardActivity implements IRenderBox {
 
-    final int DEFAULT_BACKGROUND = R.drawable.sample360;
+    final int DEFAULT_BACKGROUND = R.drawable.bg;
 
     Sphere photosphere;
 
