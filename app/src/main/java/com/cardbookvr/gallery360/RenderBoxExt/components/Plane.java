@@ -1,8 +1,9 @@
 package com.cardbookvr.gallery360.RenderBoxExt.components;
 
+import com.cardbookvr.gallery360.RenderBoxExt.materials.BorderMaterial;
 import com.cardbookvr.renderbox.components.RenderObject;
-import com.cardbookvr.solarsystem.RenderBoxExt.materials.DiffuseLightingMaterial;
-import com.cardbookvr.solarsystem.RenderBoxExt.materials.UnlitTexMaterial;
+import com.cardbookvr.renderbox.materials.DiffuseLightingMaterial;
+import com.cardbookvr.renderbox.materials.UnlitTexMaterial;
 
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
@@ -80,6 +81,10 @@ public class Plane extends RenderObject {
         return this;
     }
 
+    public void setupBorderMaterial(BorderMaterial material){
+        this.material = material;
+        material.setBuffers(vertexBuffer, texCoordBuffer, indexBuffer, numIndices);
+    }
 
     public static void allocateBuffers(){
         if (setup) return;

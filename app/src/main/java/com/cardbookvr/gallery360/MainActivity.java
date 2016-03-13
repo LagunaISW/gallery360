@@ -3,11 +3,13 @@ package com.cardbookvr.gallery360;
 import android.os.Bundle;
 
 import com.cardbookvr.gallery360.RenderBoxExt.components.Plane;
+import com.cardbookvr.gallery360.RenderBoxExt.materials.BorderMaterial;
 import com.cardbookvr.renderbox.IRenderBox;
 import com.cardbookvr.renderbox.RenderBox;
 import com.cardbookvr.renderbox.Transform;
 import com.cardbookvr.renderbox.components.Camera;
-import com.cardbookvr.solarsystem.RenderBoxExt.components.Sphere;
+import com.cardbookvr.renderbox.components.RenderObject;
+import com.cardbookvr.renderbox.components.Sphere;
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 import com.google.vrtoolkit.cardboard.CardboardView;
 
@@ -63,6 +65,9 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         new Transform()
                 .setParent(screenRoot, false)
                 .addComponent(screen);
-    }
 
+        BorderMaterial screenMaterial = new BorderMaterial();
+        screenMaterial.setTexture(RenderObject.loadTexture(R.drawable.sample360));
+        screen.setupBorderMaterial(screenMaterial);
+    }
 }
