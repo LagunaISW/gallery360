@@ -43,12 +43,12 @@ public class Plane extends RenderObject {
             1, 3, 2
     };
 
-    private static FloatBuffer vertexBuffer;
-    private static FloatBuffer colorBuffer;
-    private static FloatBuffer normalBuffer;
-    private static FloatBuffer texCoordBuffer;
-    private static ShortBuffer indexBuffer;
-    static final int numIndices = 6;
+    public static FloatBuffer vertexBuffer;
+    public static FloatBuffer colorBuffer;
+    public static FloatBuffer normalBuffer;
+    public static FloatBuffer texCoordBuffer;
+    public static ShortBuffer indexBuffer;
+    public static final int numIndices = 6;
 
     static boolean setup;
 
