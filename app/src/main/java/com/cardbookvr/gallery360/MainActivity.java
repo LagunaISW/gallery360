@@ -1,6 +1,7 @@
 package com.cardbookvr.gallery360;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import com.cardbookvr.gallery360.RenderBoxExt.components.Plane;
 import com.cardbookvr.gallery360.RenderBoxExt.materials.BorderMaterial;
@@ -13,12 +14,19 @@ import com.cardbookvr.renderbox.components.Sphere;
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 import com.google.vrtoolkit.cardboard.CardboardView;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends CardboardActivity implements IRenderBox {
+    final String TAG = "MainActivity";
 
     final int DEFAULT_BACKGROUND = R.drawable.bg;
 
     Sphere photosphere;
     Plane screen;
+    final List<Image> images = new ArrayList<>();
+    final String imagesPath = "/storage/emulated/0/DCIM/Camera";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +43,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     public void setup() {
         setupBackground();
         setupScreen();
+        loadImageList(imagesPath);
     }
 
     @Override
@@ -70,4 +79,21 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         screenMaterial.setTexture(RenderObject.loadTexture(R.drawable.sample360));
         screen.setupBorderMaterial(screenMaterial);
     }
+
+    int loadImageList(String path) {
+        File f = new File(path);
+        File[] file = f.listFiles();
+        if (file==null)
+            return 0;
+        for (int i = 0; i < file.length; i++) {
+            String name = file[i].getName();
+            if (Image.isValidImage(name)) {
+                Log.d(TAG, "image name: " + name);
+                Image img = new Image(path + "/" + name);
+                images.add(img);
+            }
+        }
+        return file.length;
+    }
+
 }
