@@ -68,8 +68,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     void setupScreen() {
         Transform screenRoot = new Transform()
                 .setLocalScale(4, 4, 1)
-                .setLocalPosition(0, 0, 5)
-                .setLocalRotation(0, 0, 180);
+                .setLocalPosition(0, 0, 5);
 
         screen = new Plane(R.drawable.sample360, false);
 
