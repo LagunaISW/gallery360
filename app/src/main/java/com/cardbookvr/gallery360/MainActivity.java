@@ -19,10 +19,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends CardboardActivity implements IRenderBox {
-    final String TAG = "MainActivity";
+    private static final String TAG = "Gallery360";
 
     final int DEFAULT_BACKGROUND = R.drawable.bg;
 
+    CardboardView cardboardView;
     Sphere photosphere;
     Plane screen;
     final List<Image> images = new ArrayList<>();
@@ -33,7 +34,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        CardboardView cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
+        cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
         cardboardView.setRestoreGLStateEnabled(false);
         cardboardView.setRenderer(new RenderBox(this, this));
         setCardboardView(cardboardView);
@@ -44,6 +45,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         setupBackground();
         setupScreen();
         loadImageList(imagesPath);
+        showImage(images.get(0));
     }
 
     @Override
@@ -94,6 +96,10 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
             }
         }
         return file.length;
+    }
+
+    void showImage(Image image) {
+        image.show(cardboardView, screen);
     }
 
 }
