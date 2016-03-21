@@ -1,5 +1,6 @@
 package com.cardbookvr.gallery360;
 
+import android.opengl.GLES20;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -22,6 +23,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     private static final String TAG = "Gallery360";
 
     final int DEFAULT_BACKGROUND = R.drawable.bg;
+    static int MAX_TEXTURE_SIZE = 2048;
 
     CardboardView cardboardView;
     Sphere photosphere;
@@ -42,6 +44,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     @Override
     public void setup() {
+        setupMaxTextureSize();
         setupBackground();
         setupScreen();
         loadImageList(imagesPath);
@@ -79,6 +82,14 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         BorderMaterial screenMaterial = new BorderMaterial();
         screenMaterial.setTexture(RenderObject.loadTexture(R.drawable.sample360));
         screen.setupBorderMaterial(screenMaterial);
+    }
+
+    void setupMaxTextureSize() {
+        //get max texture size
+        int[] maxTextureSize = new int[1];
+        GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSize, 0);
+        MAX_TEXTURE_SIZE = maxTextureSize[0];
+        Log.i(TAG, "Max texture size = " + MAX_TEXTURE_SIZE);
     }
 
     int loadImageList(String path) {
