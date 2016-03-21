@@ -50,8 +50,8 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         setupBackground();
         setupScreen();
         loadImageList(imagesPath);
-//        showImage(images.get(0));
-        showImage(images.get(images.size()-1));
+        showImage(images.get(0));
+        //showImage(images.get(images.size()-1));
     }
 
     @Override
@@ -76,7 +76,8 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     void setupScreen() {
         Transform screenRoot = new Transform()
                 .setLocalScale(4, 4, 1)
-                .setLocalPosition(0, 0, 5);
+                .setLocalRotation(0, -90, 0)
+                .setLocalPosition(-5, 0, 0);
 
         screen = new Plane(R.drawable.sample360, false);
 
