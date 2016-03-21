@@ -12,6 +12,7 @@ import com.cardbookvr.renderbox.Transform;
 import com.cardbookvr.renderbox.components.Camera;
 import com.cardbookvr.renderbox.components.RenderObject;
 import com.cardbookvr.renderbox.components.Sphere;
+import com.cardbookvr.renderbox.materials.UnlitTexMaterial;
 import com.google.vrtoolkit.cardboard.CardboardActivity;
 import com.google.vrtoolkit.cardboard.CardboardView;
 
@@ -28,6 +29,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     CardboardView cardboardView;
     Sphere photosphere;
     Plane screen;
+    int bgTextureHandle;
     final List<Image> images = new ArrayList<>();
     final String imagesPath = "/storage/emulated/0/DCIM/Camera";
 
@@ -48,7 +50,8 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         setupBackground();
         setupScreen();
         loadImageList(imagesPath);
-        showImage(images.get(0));
+//        showImage(images.get(0));
+        showImage(images.get(images.size()-1));
     }
 
     @Override
@@ -66,6 +69,8 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         new Transform()
                 .setLocalScale(-Camera.Z_FAR, -Camera.Z_FAR, -Camera.Z_FAR)
                 .addComponent(photosphere);
+        UnlitTexMaterial mat = (UnlitTexMaterial) photosphere.getMaterial();
+        bgTextureHandle = mat.getTexture();
     }
 
     void setupScreen() {
@@ -109,7 +114,16 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     }
 
     void showImage(Image image) {
-        image.show(cardboardView, screen);
+        UnlitTexMaterial bgMaterial = (UnlitTexMaterial) photosphere.getMaterial();
+        image.loadFullTexture(cardboardView);
+        if (image.isPhotosphere) {
+            bgMaterial.setTexture(image.textureHandle);
+            screen.enabled = false;
+        } else {
+            bgMaterial.setTexture(bgTextureHandle);
+            screen.enabled = true;
+            image.show(cardboardView, screen);
+        }
     }
 
 }
