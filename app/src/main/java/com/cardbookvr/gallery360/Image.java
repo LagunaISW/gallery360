@@ -23,6 +23,7 @@ public class Image {
     String path;
     int textureHandle;
     Quaternion rotation;
+    int height, width;
 
     public Image(String path) {
         this.path = path;
@@ -51,10 +52,13 @@ public class Image {
     }
 
     public void loadTexture(CardboardView cardboardView){
-        final Bitmap bitmap = BitmapFactory.decodeFile(path);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        final Bitmap bitmap = BitmapFactory.decodeFile(path, options);
         if(bitmap == null){
             throw new RuntimeException("Error loading bitmap.");
         }
+        width = options.outWidth;
+        height = options.outHeight;
         textureHandle = bitmapToTexture(bitmap);
     }
 
@@ -87,6 +91,7 @@ public class Image {
         BorderMaterial material = (BorderMaterial) screen.getMaterial();
         material.setTexture(textureHandle);
         calcRotation(screen);
+        calcScale(screen);
     }
 
     void calcRotation(Plane screen){
@@ -137,6 +142,14 @@ public class Image {
             }
         }
         screen.transform.setLocalRotation(rotation);
+    }
+
+    void calcScale(Plane screen) {
+        if (width > 0 && width > height) {
+            screen.transform.setLocalScale(1, (float) height / width, 1);
+        } else if(height > 0) {
+            screen.transform.setLocalScale((float) width / height, 1, 1);
+        }
     }
 
 }
