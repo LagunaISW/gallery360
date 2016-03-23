@@ -111,6 +111,14 @@ public class Image {
         calcScale(screen);
     }
 
+    public void showThumbnail(CardboardView cardboardView, Plane thumb) {
+        loadTexture(cardboardView, 4);
+        BorderMaterial material = (BorderMaterial) thumb.getMaterial();
+        material.setTexture(textureHandle);
+        calcRotation(thumb);
+        calcScale(thumb);
+    }
+
     void calcRotation(Plane screen){
         rotation = new Quaternion();
 

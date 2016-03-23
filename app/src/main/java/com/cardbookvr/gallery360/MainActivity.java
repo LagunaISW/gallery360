@@ -30,8 +30,13 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     Sphere photosphere;
     Plane screen;
     int bgTextureHandle;
+
     final List<Image> images = new ArrayList<>();
     final String imagesPath = "/storage/emulated/0/DCIM/Camera";
+
+    final int GRID_X = 5;
+    final int GRID_Y = 3;
+    final List<Thumbnail> thumbnails = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +55,8 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         setupBackground();
         setupScreen();
         loadImageList(imagesPath);
-        showImage(images.get(0));
-        //showImage(images.get(images.size()-1));
+        setupThumbnailGrid();
+        updateThumbnails();
     }
 
     @Override
@@ -96,6 +101,40 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxTextureSize, 0);
         MAX_TEXTURE_SIZE = maxTextureSize[0];
         Log.i(TAG, "Max texture size = " + MAX_TEXTURE_SIZE);
+    }
+
+    void setupThumbnailGrid() {
+        int count = 0;
+        for (int i = 0; i < GRID_Y; i++) {
+            for (int j = 0; j < GRID_X; j++) {
+                if (count < images.size()) {
+                    Thumbnail thumb = new Thumbnail(cardboardView);
+                    thumbnails.add(thumb);
+
+                    Transform image = new Transform();
+                    image.setLocalPosition(-4 + j * 2, 3 - i * 3, -5);
+                    Plane imgPlane = new Plane();
+                    thumb.plane = imgPlane;
+                    BorderMaterial material = new BorderMaterial();
+                    imgPlane.setupBorderMaterial(material);
+                    image.addComponent(imgPlane);
+                }
+                count++;
+            }
+        }
+    }
+
+    void updateThumbnails() {
+        int count = 0;
+        for (int i = 0; i < GRID_Y; i++) {
+            for (int j = 0; j < GRID_X; j++) {
+                if(count < thumbnails.size() && count < images.size()) {
+                    Thumbnail thumb = thumbnails.get(count);
+                    thumb.setImage(images.get(count));
+                }
+                count++;
+            }
+        }
     }
 
     int loadImageList(String path) {
