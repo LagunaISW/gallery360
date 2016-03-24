@@ -7,6 +7,7 @@ import android.os.Vibrator;
 import android.util.Log;
 
 import com.cardbookvr.gallery360.RenderBoxExt.components.Plane;
+import com.cardbookvr.gallery360.RenderBoxExt.components.Triangle;
 import com.cardbookvr.gallery360.RenderBoxExt.materials.BorderMaterial;
 import com.cardbookvr.renderbox.IRenderBox;
 import com.cardbookvr.renderbox.RenderBox;
@@ -39,6 +40,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     final int GRID_X = 5;
     final int GRID_Y = 3;
     final List<Thumbnail> thumbnails = new ArrayList<>();
+    static int thumbOffset = 0;
 
     final float[] selectedColor = new float[]{0, 0.5f, 0.5f, 1};
     final float[] invalidColor = new float[]{0.5f, 0, 0, 1};
@@ -47,6 +49,11 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     final float normalScale = 0.85f;
     Thumbnail selectedThumbnail = null;
     private Vibrator vibrator;
+
+    Triangle up, down;
+    BorderMaterial upMaterial, downMaterial;
+    boolean upSelected, downSelected;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +74,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         setupScreen();
         loadImageList(imagesPath);
         setupThumbnailGrid();
+        setupScrollButtons();
         updateThumbnails();
     }
 
@@ -85,6 +93,25 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         if (selectedThumbnail != null) {
             vibrator.vibrate(25);
             showImage(selectedThumbnail.image);
+        }
+        if (upSelected) {
+            // scroll up
+            thumbOffset -= GRID_X;
+            if (thumbOffset < 0) {
+                thumbOffset = images.size() - GRID_X;
+            }
+            vibrator.vibrate(25);
+            updateThumbnails();
+        }
+        if (downSelected) {
+            // scroll down
+            if (thumbOffset < images.size()) {
+                thumbOffset += GRID_X;
+            } else {
+                thumbOffset = 0;
+            }
+            vibrator.vibrate(25);
+            updateThumbnails();
         }
     }
 
@@ -144,17 +171,39 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         }
     }
 
+    void setupScrollButtons() {
+        up = new Triangle();
+        upMaterial = new BorderMaterial();
+        up.setupBorderMaterial(upMaterial);
+        new Transform()
+                .setLocalPosition(0,6,-5)
+                .addComponent(up);
+
+        down = new Triangle();
+        downMaterial = new BorderMaterial();
+        down.setupBorderMaterial(downMaterial);
+        new Transform()
+                .setLocalPosition(0,-6,-5)
+                .setLocalRotation(0,0,180)
+                .addComponent(down);
+    }
+
     void updateThumbnails() {
-        int count = 0;
-        for (int i = 0; i < GRID_Y; i++) {
-            for (int j = 0; j < GRID_X; j++) {
-                if(count < thumbnails.size() && count < images.size()) {
-                    Thumbnail thumb = thumbnails.get(count);
-                    thumb.setImage(images.get(count));
+        cardboardView.queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                int count = thumbOffset;
+                for (Thumbnail thumb : thumbnails) {
+                    if (count < images.size()) {
+                        thumb.setImage(images.get(count));
+                        thumb.setVisible(true);
+                    } else {
+                        thumb.setVisible(false);
+                    }
+                    count++;
                 }
-                count++;
             }
-        }
+        });
     }
 
     int loadImageList(String path) {
@@ -162,12 +211,14 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         File[] file = f.listFiles();
         if (file==null)
             return 0;
-        for (int i = 0; i < file.length; i++) {
-            String name = file[i].getName();
-            if (Image.isValidImage(name)) {
-                Log.d(TAG, "image name: " + name);
-                Image img = new Image(path + "/" + name);
-                images.add(img);
+        for (int x = 0; x < 3; x++) { // populate with duplicate images for scrolling
+            for (int i = 0; i < file.length; i++) {
+                String name = file[i].getName();
+                if (Image.isValidImage(name)) {
+                    Log.d(TAG, "image name: " + name);
+                    Image img = new Image(path + "/" + name);
+                    images.add(img);
+                }
             }
         }
         return file.length;
@@ -205,6 +256,23 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
                 material.borderColor = normalColor;
             }
         }
+
+        if (up.isLooking) {
+            upSelected = true;
+            upMaterial.borderColor = selectedColor;
+        } else {
+            upSelected = false;
+            upMaterial.borderColor = normalColor;
+        }
+
+        if (down.isLooking) {
+            downSelected = true;
+            downMaterial.borderColor = selectedColor;
+        } else {
+            downSelected = false;
+            downMaterial.borderColor = normalColor;
+        }
+
     }
 
 }

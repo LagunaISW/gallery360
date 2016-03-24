@@ -25,4 +25,8 @@ public class Thumbnail {
         // show it
         image.showThumbnail(cardboardView, plane);
     }
+
+    public void setVisible(boolean visible) {
+        plane.enabled = visible;
+    }
 }
