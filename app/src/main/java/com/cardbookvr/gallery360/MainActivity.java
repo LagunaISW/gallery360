@@ -76,6 +76,14 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         selectObject();
     }
 
+    @Override
+    public void onCardboardTrigger() {
+        if (selectedThumbnail != null) {
+            showImage(selectedThumbnail.image);
+        }
+    }
+
+
     void setupBackground() {
         photosphere = new Sphere(DEFAULT_BACKGROUND, false);
         new Transform()
