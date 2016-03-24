@@ -168,17 +168,22 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         return file.length;
     }
 
-    void showImage(Image image) {
-        UnlitTexMaterial bgMaterial = (UnlitTexMaterial) photosphere.getMaterial();
-        image.loadFullTexture(cardboardView);
-        if (image.isPhotosphere) {
-            bgMaterial.setTexture(image.textureHandle);
-            screen.enabled = false;
-        } else {
-            bgMaterial.setTexture(bgTextureHandle);
-            screen.enabled = true;
-            image.show(cardboardView, screen);
-        }
+    void showImage(final Image image) {
+        cardboardView.queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                UnlitTexMaterial bgMaterial = (UnlitTexMaterial) photosphere.getMaterial();
+                image.loadFullTexture(cardboardView);
+                if (image.isPhotosphere) {
+                    bgMaterial.setTexture(image.textureHandle);
+                    screen.enabled = false;
+                } else {
+                    bgMaterial.setTexture(bgTextureHandle);
+                    screen.enabled = true;
+                    image.show(cardboardView, screen);
+                }
+            }
+        });
     }
 
     void selectObject() {
