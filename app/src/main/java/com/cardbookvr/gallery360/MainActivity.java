@@ -2,12 +2,14 @@ package com.cardbookvr.gallery360;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.opengl.GLES20;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.OrientationEventListener;
 
 import com.cardbookvr.gallery360.RenderBoxExt.components.Plane;
 import com.cardbookvr.gallery360.RenderBoxExt.components.Triangle;
@@ -59,7 +61,12 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     public static boolean cancelUpdate = false;
     static boolean gridUpdateLock = false;
+    static boolean setupComplete = false;
 
+    boolean interfaceVisible = true;
+    OrientationEventListener orientationEventListener;
+    int orientThreshold = 10;
+    boolean orientFlip = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +79,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         cardboardView.setRenderer(new RenderBox(this, this));
         setCardboardView(cardboardView);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        setupOrientationListener();
     }
 
     @Override
@@ -148,6 +156,13 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         cancelUpdate = true;
     }
 
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        orientationEventListener.disable();
+    }
+
+
     void setupBackground() {
         photosphere = new Sphere(DEFAULT_BACKGROUND, false);
         new Transform()
@@ -197,6 +212,8 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
                     BorderMaterial material = new BorderMaterial();
                     imgPlane.setupBorderMaterial(material);
                     image.addComponent(imgPlane);
+
+                    //thumb.setVisible(false);
                 }
                 count++;
             }
@@ -331,4 +348,41 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     }
 
+    void setupOrientationListener() {
+        orientationEventListener = new OrientationEventListener(this, SensorManager.SENSOR_DELAY_NORMAL) {
+            @Override
+            public void onOrientationChanged(int orientation) {
+                if(gridUpdateLock || !setupComplete)
+                    return;
+                if(Math.abs(orientation) < orientThreshold || Math.abs(orientation - 180) < orientThreshold){     //"close enough" to portrait mode
+                    if(!orientFlip) {
+                        Log.d(TAG, "tilt up! " + orientation);
+                        vibrator.vibrate(25);
+                        toggleGridMenu();
+                    }
+                    orientFlip = true;
+                }
+                if(Math.abs(orientation - 90) < orientThreshold || Math.abs(orientation - 270) < orientThreshold) {     //"close enough" to landscape mode
+                    orientFlip = false;
+                }
+            }
+        };
+        if(orientationEventListener.canDetectOrientation())
+            orientationEventListener.enable();
+    }
+    
+    void toggleGridMenu() {
+        interfaceVisible = !interfaceVisible;
+        if (up != null)
+            up.enabled = !up.enabled;
+        if (down != null)
+            down.enabled = !down.enabled;
+        int texCount = thumbOffset;
+        for (Thumbnail thumb : thumbnails) {
+            if (texCount < images.size() && thumb != null) {
+                thumb.setVisible(interfaceVisible);
+            }
+            texCount++;
+        }
+    }
 }
