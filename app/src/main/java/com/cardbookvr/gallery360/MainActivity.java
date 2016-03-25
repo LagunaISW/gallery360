@@ -266,6 +266,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
                 }
                 cancelUpdate = false;
                 gridUpdateLock = false;
+                setupComplete = true;
             }
         }.start();
     }
