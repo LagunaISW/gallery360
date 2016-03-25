@@ -1,6 +1,8 @@
 package com.cardbookvr.gallery360;
 
 import com.cardbookvr.gallery360.RenderBoxExt.components.Plane;
+import com.cardbookvr.renderbox.components.Sphere;
+import com.cardbookvr.renderbox.materials.UnlitTexMaterial;
 import com.google.vrtoolkit.cardboard.CardboardView;
 
 /**
@@ -10,6 +12,7 @@ public class Thumbnail {
     final static String TAG = "Thumbnail";
 
     public Plane plane;
+    public Sphere sphere;
     public Image image;
     CardboardView cardboardView;
 
@@ -32,10 +35,26 @@ public class Thumbnail {
             e.printStackTrace();
         }
         // show it
-        image.showThumbnail(cardboardView, plane);
+        if (image.isPhotosphere) {
+            UnlitTexMaterial material = (UnlitTexMaterial) sphere.getMaterial();
+            material.setTexture(image.textureHandle);
+        } else {
+            image.showThumbnail(cardboardView, plane);
+        }
     }
 
     public void setVisible(boolean visible) {
-        plane.enabled = visible;
+        if(visible) {
+            if(image.isPhotosphere){
+                plane.enabled = false;
+                sphere.enabled = true;
+            } else{
+                plane.enabled = true;
+                sphere.enabled = false;
+            }
+        } else {
+            plane.enabled = false;
+            sphere.enabled = false;
+        }
     }
 }
