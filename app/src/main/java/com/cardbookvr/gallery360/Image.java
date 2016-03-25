@@ -55,6 +55,8 @@ public class Image {
     }
 
     public void loadTexture(CardboardView cardboardView, int sampleSize){
+        if (textureHandle != 0)
+            return;
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = sampleSize;
         final Bitmap bitmap = BitmapFactory.decodeFile(path, options);
