@@ -21,7 +21,16 @@ public class Thumbnail {
         this.image = image;
         // Turn the image into a GPU texture
         image.loadTexture(cardboardView, 4);
-        // TODO: wait until texture binding is done
+        // wait until texture binding is done
+        try {
+            while (Image.loadLock) {
+                if (MainActivity.cancelUpdate)
+                    return;
+                Thread.sleep(10);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         // show it
         image.showThumbnail(cardboardView, plane);
     }
