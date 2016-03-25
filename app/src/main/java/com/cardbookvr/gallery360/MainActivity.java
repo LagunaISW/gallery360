@@ -54,9 +54,13 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     BorderMaterial upMaterial, downMaterial;
     boolean upSelected, downSelected;
 
+    public static boolean cancelUpdate = false;
+    static boolean gridUpdateLock = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        cancelUpdate = false;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -90,6 +94,11 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     @Override
     public void onCardboardTrigger() {
+        if (gridUpdateLock) {
+            vibrator.vibrate(new long[]{0,50,30,50}, -1);
+            return;
+        }
+
         if (selectedThumbnail != null) {
             vibrator.vibrate(25);
             showImage(selectedThumbnail.image);
@@ -115,6 +124,21 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         }
     }
 
+    @Override
+    protected void onStart(){
+        super.onStart();
+        cancelUpdate = true;
+    }
+    @Override
+    protected void onResume(){
+        super.onResume();
+        cancelUpdate = false;
+    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+        cancelUpdate = true;
+    }
 
     void setupBackground() {
         photosphere = new Sphere(DEFAULT_BACKGROUND, false);
@@ -189,11 +213,14 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     }
 
     void updateThumbnails() {
-        cardboardView.queueEvent(new Runnable() {
+        gridUpdateLock = true;
+        new Thread() {
             @Override
             public void run() {
                 int count = thumbOffset;
                 for (Thumbnail thumb : thumbnails) {
+                    if (cancelUpdate)
+                        return;
                     if (count < images.size()) {
                         thumb.setImage(images.get(count));
                         thumb.setVisible(true);
@@ -202,8 +229,10 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
                     }
                     count++;
                 }
+                cancelUpdate = false;
+                gridUpdateLock = false;
             }
-        });
+        }.start();
     }
 
     int loadImageList(String path) {
@@ -225,7 +254,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     }
 
     void showImage(final Image image) {
-        cardboardView.queueEvent(new Runnable() {
+        new Thread() {
             @Override
             public void run() {
                 UnlitTexMaterial bgMaterial = (UnlitTexMaterial) photosphere.getMaterial();
@@ -239,7 +268,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
                     image.show(cardboardView, screen);
                 }
             }
-        });
+        }.start();
     }
 
     void selectObject() {
@@ -252,6 +281,9 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
             if (plane.isLooking) {
                 selectedThumbnail = thumb;
                 material.borderColor = selectedColor;
+                if(gridUpdateLock)
+                    material.borderColor = invalidColor;
+
             } else {
                 material.borderColor = normalColor;
             }
