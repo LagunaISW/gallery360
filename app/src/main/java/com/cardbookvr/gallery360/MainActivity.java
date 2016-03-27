@@ -167,7 +167,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     void setupBackground() {
         photosphere = new Sphere(DEFAULT_BACKGROUND, false);
         new Transform()
-                .setLocalScale(-Camera.Z_FAR, -Camera.Z_FAR, -Camera.Z_FAR)
+                .setLocalScale(-Camera.Z_FAR * 0.99f, -Camera.Z_FAR, -Camera.Z_FAR)
                 .addComponent(photosphere);
         UnlitTexMaterial mat = (UnlitTexMaterial) photosphere.getMaterial();
         bgTextureHandle = mat.getTexture();
@@ -176,7 +176,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     void setupScreen() {
         Transform screenRoot = new Transform()
                 .setLocalScale(4, 4, 1)
-                .setLocalRotation(0, -90, 180)
+                .setLocalRotation(0, -90, 0)
                 .setLocalPosition(-5, 0, 0);
 
         screen = new Plane(R.drawable.sample360, false);
@@ -280,7 +280,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
             for (int i = 0; i < file.length; i++) {
                 String name = file[i].getName();
                 if (Image.isValidImage(name)) {
-                    Log.d(TAG, "image name: " + name);
+                    //Log.d(TAG, "image name: " + name);
                     Image img = new Image(path + "/" + name);
                     images.add(img);
                 }
@@ -309,18 +309,24 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     void showUriImage(final Uri uri) {
         Log.d(TAG, "intent data " + uri.getPath());
-        String[] filePathColumn = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContentResolver().query(uri, filePathColumn, null, null, null);
-        if (cursor == null)
-            return;
-        if (cursor.moveToFirst()) {
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String yourRealPath = cursor.getString(columnIndex);
-            Image img = new Image(yourRealPath);
+        File file = new File(uri.getPath());
+        if(file.exists()){
+            Image img = new Image(uri.getPath());
             showImage(img);
+        } else {
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+            Cursor cursor = getContentResolver().query(uri, filePathColumn, null, null, null);
+            if (cursor == null)
+                return;
+            if (cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                String yourRealPath = cursor.getString(columnIndex);
+                Image img = new Image(yourRealPath);
+                showImage(img);
+            }
+            // else report image not found error?
+            cursor.close();
         }
-        // else report image not found error?
-        cursor.close();
     }
 
     void selectObject() {
