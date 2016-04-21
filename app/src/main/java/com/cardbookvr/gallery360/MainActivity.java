@@ -3,6 +3,7 @@ package com.cardbookvr.gallery360;
 import android.os.Bundle;
 
 import com.cardbookvr.gallery360.RenderBoxExt.components.Plane;
+import com.cardbookvr.gallery360.RenderBoxExt.materials.BorderMaterial;
 import com.cardbookvr.renderbox.IRenderBox;
 import com.cardbookvr.renderbox.RenderBox;
 import com.cardbookvr.renderbox.Transform;
@@ -40,8 +41,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     void setupBackground() {
         photosphere = new Sphere(DEFAULT_BACKGROUND, false);
         new Transform()
-                .setLocalScale(Camera.Z_FAR * 0.99f, -Camera.Z_FAR *
-                        0.99f, Camera.Z_FAR * 0.99f)
+                .setLocalScale(Camera.Z_FAR * 0.99f, -Camera.Z_FAR * 0.99f, Camera.Z_FAR * 0.99f)
                 .addComponent(photosphere);
     }
 
@@ -51,7 +51,10 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
                 .setLocalRotation(0, 0, 180)
                 .setLocalPosition(0, 0, -5);
 
-        screen = new Plane(R.drawable.sample360, false);
+        screen = new Plane();
+        BorderMaterial screenMaterial = new BorderMaterial();
+        screenMaterial.setTexture(RenderBox.loadTexture(R.drawable.sample360));
+        screen.setupBorderMaterial(screenMaterial);
 
         new Transform()
                 .setParent(screenRoot, false)
