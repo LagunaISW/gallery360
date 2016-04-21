@@ -1,7 +1,9 @@
 package com.cardbookvr.gallery360;
 
+import android.content.Context;
 import android.opengl.GLES20;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 
 import com.cardbookvr.gallery360.RenderBoxExt.components.Plane;
@@ -42,6 +44,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     final float[] invalidColor = new float[]{0.5f, 0, 0, 1};
     final float[] normalColor = new float[]{0, 0, 0, 1};
     Thumbnail selectedThumbnail = null;
+    private Vibrator vibrator;
 
 
     @Override
@@ -52,6 +55,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
         cardboardView.setRenderer(new RenderBox(this, this));
         setCardboardView(cardboardView);
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     }
 
     @Override
@@ -148,6 +152,14 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         selectObject();
     }
 
+    @Override
+    public void onCardboardTrigger() {
+        if (selectedThumbnail != null) {
+            vibrator.vibrate(25);
+            showImage(selectedThumbnail.image);
+        }
+    }
+
     int loadImageList(String path) {
         File f = new File(path);
         File[] file = f.listFiles();
@@ -163,17 +175,24 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         return file.length;
     }
 
-    void showImage(Image image) {
-        UnlitTexMaterial bgMaterial = (UnlitTexMaterial) photosphere.getMaterial();
-        image.loadFullTexture(cardboardView);
-        if (image.isPhotosphere) {
-            bgMaterial.setTexture(image.textureHandle);
-            screen.enabled = false;
-        } else {
-            bgMaterial.setTexture(bgTextureHandle);
-            screen.enabled = true;
-            image.show(cardboardView, screen);
-        }
+    void showImage(final Image image) {
+        cardboardView.queueEvent(new Runnable() {
+            @Override
+            public void run() {
+
+                UnlitTexMaterial bgMaterial = (UnlitTexMaterial) photosphere.getMaterial();
+                image.loadFullTexture(cardboardView);
+                if (image.isPhotosphere) {
+                    bgMaterial.setTexture(image.textureHandle);
+                    screen.enabled = false;
+                } else {
+                    bgMaterial.setTexture(bgTextureHandle);
+                    screen.enabled = true;
+                    image.show(cardboardView, screen);
+                }
+
+            }
+        });
     }
 
 
