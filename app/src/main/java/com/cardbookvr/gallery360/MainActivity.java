@@ -45,6 +45,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         setupBackground();
         setupScreen();
         loadImageList(imagesPath);
+        showImage(images.get(0));
     }
 
     void setupBackground() {
@@ -94,6 +95,10 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
             }
         }
         return file.length;
+    }
+
+    void showImage(Image image) {
+        image.show(cardboardView, screen);
     }
 
 }
