@@ -38,6 +38,11 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     final List<Thumbnail> thumbnails = new ArrayList<>();
 
+    final float[] selectedColor = new float[]{0, 0.5f, 0.5f, 1};
+    final float[] invalidColor = new float[]{0.5f, 0, 0, 1};
+    final float[] normalColor = new float[]{0, 0, 0, 1};
+    Thumbnail selectedThumbnail = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,6 +122,21 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         }
     }
 
+    void selectObject() {
+        selectedThumbnail = null;
+        for (Thumbnail thumb : thumbnails) {
+            if (thumb.image == null)
+                return;
+            Plane plane = thumb.plane;
+            BorderMaterial material = (BorderMaterial) plane.getMaterial();
+            if (plane.isLooking) {
+                selectedThumbnail = thumb;
+                material.borderColor = selectedColor;
+            } else {
+                material.borderColor = normalColor;
+            }
+        }
+    }
 
     @Override
     public void preDraw() {
@@ -125,7 +145,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     @Override
     public void postDraw() {
-
+        selectObject();
     }
 
     int loadImageList(String path) {
