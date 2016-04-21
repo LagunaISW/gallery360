@@ -25,6 +25,7 @@ public class Image {
     Quaternion rotation;
     int height, width;
     public boolean isPhotosphere;
+    public static boolean loadLock = false;
 
     public Image(String path) {
         this.path = path;
@@ -64,7 +65,27 @@ public class Image {
         }
         width = options.outWidth;
         height = options.outHeight;
-        textureHandle = bitmapToTexture(bitmap);
+
+        loadLock = true;
+        cardboardView.queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                if (MainActivity.cancelUpdate)
+                    return;
+                textureHandle = bitmapToTexture(bitmap);
+                bitmap.recycle();
+                loadLock = false;
+            }
+        });
+
+        while (loadLock) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 
     public void loadFullTexture(CardboardView cardboardView) {
