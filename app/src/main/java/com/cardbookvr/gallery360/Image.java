@@ -51,10 +51,11 @@ public class Image {
         return split[split.length - 1].toLowerCase();
     }
 
-    public void loadTexture(CardboardView cardboardView) {
+    public void loadTexture(CardboardView cardboardView, int sampleSize) {
         if (textureHandle != 0)
             return;
         BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = sampleSize;
         final Bitmap bitmap = BitmapFactory.decodeFile(path, options);
         if (bitmap == null) {
             throw new RuntimeException("Error loading bitmap.");
@@ -62,6 +63,21 @@ public class Image {
         width = options.outWidth;
         height = options.outHeight;
         textureHandle = bitmapToTexture(bitmap);
+    }
+
+    public void loadFullTexture(CardboardView cardboardView) {
+        // search for best size
+        int sampleSize = 1;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        do {
+            options.inSampleSize = sampleSize;
+            BitmapFactory.decodeFile(path, options);
+            sampleSize *= 2;
+        } while (options.outWidth > MainActivity.MAX_TEXTURE_SIZE
+                || options.outHeight > MainActivity.MAX_TEXTURE_SIZE);
+        sampleSize /= 2;
+        loadTexture(cardboardView, sampleSize);
     }
 
     public static int bitmapToTexture(Bitmap bitmap) {
@@ -90,7 +106,7 @@ public class Image {
     }
 
     public void show(CardboardView cardboardView, Plane screen) {
-        loadTexture(cardboardView);
+        loadFullTexture(cardboardView);
         BorderMaterial material = (BorderMaterial) screen.getMaterial();
         material.setTexture(textureHandle);
         calcRotation(screen);
