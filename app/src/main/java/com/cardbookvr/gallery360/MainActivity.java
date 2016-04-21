@@ -50,6 +50,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     Triangle up, down;
     BorderMaterial upMaterial, downMaterial;
     boolean upSelected, downSelected;
+    static int thumbOffset = 0;
 
 
     @Override
@@ -120,17 +121,24 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     }
 
     void updateThumbnails() {
-        int count = 0;
-        for (Thumbnail thumb : thumbnails) {
-            if (count < images.size()) {
-                thumb.setImage(images.get(count));
-                thumb.setVisible(true);
-            } else {
-                thumb.setVisible(false);
+        cardboardView.queueEvent(new Runnable() {
+            @Override
+            public void run() {
+
+                int count = thumbOffset;
+                for (Thumbnail thumb : thumbnails) {
+                    if (count < images.size()) {
+                        thumb.setImage(images.get(count));
+                        thumb.setVisible(true);
+                    } else {
+                        thumb.setVisible(false);
+                    }
+                    count++;
+                }
+
             }
-            count++;
-        }
-    }
+        });
+     }
 
     void selectObject() {
         selectedThumbnail = null;
@@ -145,6 +153,22 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
             } else {
                 material.borderColor = normalColor;
             }
+        }
+
+        if (up.isLooking) {
+            upSelected = true;
+            upMaterial.borderColor = selectedColor;
+        } else {
+            upSelected = false;
+            upMaterial.borderColor = normalColor;
+        }
+
+        if (down.isLooking) {
+            downSelected = true;
+            downMaterial.borderColor = selectedColor;
+        } else {
+            downSelected = false;
+            downMaterial.borderColor = normalColor;
         }
     }
 
@@ -182,6 +206,27 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
             vibrator.vibrate(25);
             showImage(selectedThumbnail.image);
         }
+
+        if (upSelected) {
+            // scroll up
+            thumbOffset -= GRID_X;
+            if (thumbOffset < 0) {
+                thumbOffset = images.size() - GRID_X;
+            }
+            vibrator.vibrate(25);
+            updateThumbnails();
+        }
+
+        if (downSelected) {
+            // scroll down
+            if (thumbOffset < images.size()) {
+                thumbOffset += GRID_X;
+            } else {
+                thumbOffset = 0;
+            }
+            vibrator.vibrate(25);
+            updateThumbnails();
+        }
     }
 
     int loadImageList(String path) {
@@ -189,11 +234,13 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         File[] file = f.listFiles();
         if (file == null)
             return 0;
-        for (int i = 0; i < file.length; i++) {
-            if (Image.isValidImage(file[i].getName())) {
-                Log.d(TAG, file[i].getName());
-                Image img = new Image(path + "/" + file[i].getName());
-                images.add(img);
+        for (int j = 0; j < 2; j++) { // artificially add extra images to demonstrate scrolling
+            for (int i = 0; i < file.length; i++) {
+                if (Image.isValidImage(file[i].getName())) {
+                    Log.d(TAG, file[i].getName());
+                    Image img = new Image(path + "/" + file[i].getName());
+                    images.add(img);
+                }
             }
         }
         return file.length;
