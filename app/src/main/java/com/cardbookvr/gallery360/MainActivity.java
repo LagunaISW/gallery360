@@ -33,6 +33,12 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     final List<Image> images = new ArrayList<>();
     final String imagesPath = "/storage/emulated/0/DCIM/Camera";
 
+    final int GRID_X = 5;
+    final int GRID_Y = 3;
+
+    final List<Thumbnail> thumbnails = new ArrayList<>();
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +55,8 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         setupBackground();
         setupScreen();
         loadImageList(imagesPath);
-        showImage(images.get(0));
+        setupThumbnailGrid();
+        updateThumbnails();
     }
 
     void setupBackground() {
@@ -69,12 +76,45 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
         screen = new Plane();
         BorderMaterial screenMaterial = new BorderMaterial();
-        screenMaterial.setTexture(RenderBox.loadTexture(R.drawable.sample360));
         screen.setupBorderMaterial(screenMaterial);
 
         new Transform()
                 .setParent(screenRoot, false)
                 .addComponent(screen);
+    }
+
+    void setupThumbnailGrid() {
+        int count = 0;
+        for (int i = 0; i < GRID_Y; i++) {
+            for (int j = 0; j < GRID_X; j++) {
+                if (count < images.size()) {
+                    Thumbnail thumb = new Thumbnail(cardboardView);
+                    thumbnails.add(thumb);
+
+                    Transform image = new Transform();
+                    image.setLocalPosition(-4 + j * 2.1f, 3 - i * 3, -5);
+                    Plane imgPlane = new Plane();
+                    thumb.plane = imgPlane;
+                    BorderMaterial material = new BorderMaterial();
+                    imgPlane.setupBorderMaterial(material);
+                    image.addComponent(imgPlane);
+                }
+                count++;
+            }
+        }
+    }
+
+    void updateThumbnails() {
+        int count = 0;
+        for (Thumbnail thumb : thumbnails) {
+            if (count < images.size()) {
+                thumb.setImage(images.get(count));
+                thumb.setVisible(true);
+            } else {
+                thumb.setVisible(false);
+            }
+            count++;
+        }
     }
 
 
