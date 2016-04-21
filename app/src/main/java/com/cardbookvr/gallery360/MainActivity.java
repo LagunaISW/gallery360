@@ -7,6 +7,7 @@ import android.os.Vibrator;
 import android.util.Log;
 
 import com.cardbookvr.gallery360.RenderBoxExt.components.Plane;
+import com.cardbookvr.gallery360.RenderBoxExt.components.Triangle;
 import com.cardbookvr.gallery360.RenderBoxExt.materials.BorderMaterial;
 import com.cardbookvr.renderbox.IRenderBox;
 import com.cardbookvr.renderbox.RenderBox;
@@ -46,6 +47,10 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     Thumbnail selectedThumbnail = null;
     private Vibrator vibrator;
 
+    Triangle up, down;
+    BorderMaterial upMaterial, downMaterial;
+    boolean upSelected, downSelected;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +70,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         setupScreen();
         loadImageList(imagesPath);
         setupThumbnailGrid();
+        setupScrollButtons();
         updateThumbnails();
     }
 
@@ -141,6 +147,24 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
             }
         }
     }
+
+    void setupScrollButtons() {
+        up = new Triangle();
+        upMaterial = new BorderMaterial();
+        up.setupBorderMaterial(upMaterial);
+        new Transform()
+                .setLocalPosition(0, 6, -5)
+                .addComponent(up);
+
+        down = new Triangle();
+        downMaterial = new BorderMaterial();
+        down.setupBorderMaterial(downMaterial);
+        new Transform()
+                .setLocalPosition(0, -6, -5)
+                .setLocalRotation(0, 0, 180)
+                .addComponent(down);
+    }
+
 
     @Override
     public void preDraw() {
