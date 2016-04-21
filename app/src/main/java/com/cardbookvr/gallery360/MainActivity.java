@@ -49,7 +49,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         setupBackground();
         setupScreen();
         loadImageList(imagesPath);
-        showImage(images.get(images.size()-1));
+        showImage(images.get(0));
     }
 
     void setupBackground() {
@@ -63,9 +63,9 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     void setupScreen() {
         Transform screenRoot = new Transform()
-                .setLocalScale(-4, 4, 1)
-                .setLocalRotation(0, 0, 180)
-                .setLocalPosition(0, 0, -5);
+                .setLocalScale(4, 4, 1)
+                .setLocalRotation(0, -90, 0)
+                .setLocalPosition(-5, 0, 0);
 
         screen = new Plane();
         BorderMaterial screenMaterial = new BorderMaterial();
