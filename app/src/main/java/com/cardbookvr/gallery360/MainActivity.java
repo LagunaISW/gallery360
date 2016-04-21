@@ -1,9 +1,12 @@
 package com.cardbookvr.gallery360;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.opengl.GLES20;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import com.cardbookvr.gallery360.RenderBoxExt.components.Plane;
@@ -70,12 +73,17 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     @Override
     public void setup() {
+        BorderMaterial.destroy();
         setupMaxTextureSize();
         setupBackground();
         setupScreen();
         loadImageList(imagesPath);
         setupThumbnailGrid();
         setupScrollButtons();
+        Uri intentUri = getIntent().getData();
+        if (intentUri != null) {
+            showUriImage(intentUri);
+        }
         updateThumbnails();
     }
 
@@ -298,6 +306,29 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         }.start();
     }
 
+    void showUriImage(final Uri uri) {
+        Log.d(TAG, "intent data " + uri.getPath());
+        File file = new File(uri.getPath());
+
+        if(file.exists()){
+            Image img = new Image(uri.getPath());
+            showImage(img);
+
+        } else {
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+            Cursor cursor = getContentResolver().query(uri, filePathColumn, null, null, null);
+            if (cursor == null)
+                return;
+            if (cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                String yourRealPath = cursor.getString(columnIndex);
+                Image img = new Image(yourRealPath);
+                showImage(img);
+            }
+            // else report image not found error?
+            cursor.close();
+        }
+    }
 
     static int MAX_TEXTURE_SIZE = 2048;
 
