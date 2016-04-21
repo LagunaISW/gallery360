@@ -15,7 +15,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
 
     CardboardView cardboardView;
 
-    final int DEFAULT_BACKGROUND = R.drawable.sample360;
+    final int DEFAULT_BACKGROUND = R.drawable.bg;
 
     Sphere photosphere;
 
