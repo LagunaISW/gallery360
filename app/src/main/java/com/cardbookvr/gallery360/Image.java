@@ -24,9 +24,11 @@ public class Image {
     int textureHandle;
     Quaternion rotation;
     int height, width;
+    public boolean isPhotosphere;
 
     public Image(String path) {
         this.path = path;
+        isPhotosphere = path.toLowerCase().contains("pano");
     }
 
     public static boolean isValidImage(String path) {
