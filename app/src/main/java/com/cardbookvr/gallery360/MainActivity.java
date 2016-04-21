@@ -16,6 +16,7 @@ import com.cardbookvr.gallery360.RenderBoxExt.components.Triangle;
 import com.cardbookvr.gallery360.RenderBoxExt.materials.BorderMaterial;
 import com.cardbookvr.renderbox.IRenderBox;
 import com.cardbookvr.renderbox.RenderBox;
+import com.cardbookvr.renderbox.Time;
 import com.cardbookvr.renderbox.Transform;
 import com.cardbookvr.renderbox.components.Camera;
 import com.cardbookvr.renderbox.components.Sphere;
@@ -69,6 +70,9 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     long tiltTime;
 
     int tiltDamper = 250;
+
+    final float selectedScale = 1.25f;
+    final float normalScale = 0.85f;
 
 
     @Override
@@ -139,6 +143,17 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
                     BorderMaterial material = new BorderMaterial();
                     imgPlane.setupBorderMaterial(material);
                     image.addComponent(imgPlane);
+
+                    Transform sphere = new Transform();
+                    sphere.setLocalPosition(-4 + j * 2.1f, 3 - i * 3, -5);
+                    sphere.setLocalRotation(180, 0, 0);
+                    sphere.setLocalScale(normalScale, normalScale, normalScale);
+                    //This is an alternative to calling setBuffers  yourself,
+                    // but I don''t know if I like setting it up with some arbitrary image
+                    Sphere imgSphere = new Sphere(R.drawable.bg, false);
+                    thumb.sphere = imgSphere;
+                    sphere.addComponent(imgSphere);
+
                 }
                 count++;
             }
@@ -169,20 +184,36 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
      }
 
     void selectObject() {
+        float deltaTime = Time.getDeltaTime();
         selectedThumbnail = null;
         for (Thumbnail thumb : thumbnails) {
             if (thumb.image == null)
                 return;
-            Plane plane = thumb.plane;
-            BorderMaterial material = (BorderMaterial) plane.getMaterial();
-            if (plane.isLooking) {
-                selectedThumbnail = thumb;
-                if(gridUpdateLock)
-                    material.borderColor = invalidColor;
-                else
-                    material.borderColor = selectedColor;
+
+            if(thumb.image.isPhotosphere) {
+                Sphere sphere = thumb.sphere;
+                if (sphere.isLooking) {
+                    selectedThumbnail = thumb;
+                    if (!gridUpdateLock)
+                        sphere.transform.setLocalScale(selectedScale, selectedScale, selectedScale);
+                } else {
+                    sphere.transform.setLocalScale(normalScale, normalScale, normalScale);
+                }
+                sphere.transform.rotate(0, 10 * deltaTime, 0);
+
             } else {
-                material.borderColor = normalColor;
+
+                Plane plane = thumb.plane;
+                BorderMaterial material = (BorderMaterial) plane.getMaterial();
+                if (plane.isLooking) {
+                    selectedThumbnail = thumb;
+                    if (gridUpdateLock)
+                        material.borderColor = invalidColor;
+                    else
+                        material.borderColor = selectedColor;
+                } else {
+                    material.borderColor = normalColor;
+                }
             }
         }
 
