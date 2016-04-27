@@ -1,13 +1,18 @@
 package com.cardbookvr.gallery360;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.hardware.SensorManager;
 import android.net.Uri;
 import android.opengl.GLES20;
 import android.os.Bundle;
+import android.os.Debug;
 import android.os.Vibrator;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.OrientationEventListener;
 
@@ -79,7 +84,6 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         cancelUpdate = false;
         cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
         cardboardView.setRenderer(new RenderBox(this, this));
@@ -88,11 +92,50 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults){
+        Log.d(TAG, "permcallback");
+        cardboardView.queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                setupAfterPermission();
+            }
+        });
+    }
+
+    @Override
     public void setup() {
         BorderMaterial.destroy();
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                Log.d(TAG, "rationale");
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        0);
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                        0);
+                Log.d(TAG, "noexp");
+            }
+        } else {
+            setupAfterPermission();
+        }
+    }
+
+    public void setupAfterPermission(){
+        Log.d(TAG, "setupafter");
         setupMaxTextureSize();
         setupBackground();
         setupScreen();
+        setupOrientationListener();
         loadImageList(imagesPath);
         setupThumbnailGrid();
         setupScrollButtons();
@@ -101,7 +144,6 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
             showUriImage(intentUri);
         }
         updateThumbnails();
-        setupOrientationListener();
     }
 
     void setupBackground() {
@@ -359,7 +401,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         for (int j = 0; j < 2; j++) { // artificially add extra images to demonstrate scrolling
             for (int i = 0; i < file.length; i++) {
                 if (Image.isValidImage(file[i].getName())) {
-                    Log.d(TAG, file[i].getName());
+                    //Log.d(TAG, file[i].getName());
                     Image img = new Image(path + "/" + file[i].getName());
                     images.add(img);
                 }
