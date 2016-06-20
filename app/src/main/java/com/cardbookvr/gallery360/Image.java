@@ -10,7 +10,7 @@ import com.cardbookvr.gallery360.RenderBoxExt.components.Plane;
 import com.cardbookvr.gallery360.RenderBoxExt.materials.BorderMaterial;
 import com.cardbookvr.renderbox.RenderBox;
 import com.cardbookvr.renderbox.math.Quaternion;
-import com.google.vrtoolkit.cardboard.CardboardView;
+import com.google.vr.sdk.base.GvrView;
 
 import java.io.IOException;
 
@@ -54,7 +54,7 @@ public class Image {
         return split[split.length - 1].toLowerCase();
     }
 
-    public void loadTexture(CardboardView cardboardView, int sampleSize) {
+    public void loadTexture(GvrView cardboardView, int sampleSize) {
         if (textureHandle != 0)
             return;
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -88,7 +88,7 @@ public class Image {
 
     }
 
-    public void loadFullTexture(CardboardView cardboardView) {
+    public void loadFullTexture(GvrView cardboardView) {
         // search for best size
         int sampleSize = 1;
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -128,7 +128,7 @@ public class Image {
         return textureHandle[0];
     }
 
-    public void show(CardboardView cardboardView, Plane screen) {
+    public void show(GvrView cardboardView, Plane screen) {
         loadFullTexture(cardboardView);
         BorderMaterial material = (BorderMaterial) screen.getMaterial();
         material.setTexture(textureHandle);
@@ -136,7 +136,7 @@ public class Image {
         calcScale(screen);
     }
 
-    public void showThumbnail(CardboardView cardboardView, Plane thumb) {
+    public void showThumbnail(GvrView cardboardView, Plane thumb) {
         loadTexture(cardboardView, 4);
         BorderMaterial material = (BorderMaterial) thumb.getMaterial();
         material.setTexture(textureHandle);

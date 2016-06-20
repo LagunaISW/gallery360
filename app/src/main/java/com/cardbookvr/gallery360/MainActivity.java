@@ -21,17 +21,17 @@ import com.cardbookvr.renderbox.Transform;
 import com.cardbookvr.renderbox.components.Camera;
 import com.cardbookvr.renderbox.components.Sphere;
 import com.cardbookvr.renderbox.materials.UnlitTexMaterial;
-import com.google.vrtoolkit.cardboard.CardboardActivity;
-import com.google.vrtoolkit.cardboard.CardboardView;
+import com.google.vr.sdk.base.GvrActivity;
+import com.google.vr.sdk.base.GvrView;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends CardboardActivity implements IRenderBox {
+public class MainActivity extends GvrActivity implements IRenderBox {
     private static final String TAG = "Gallery360";
 
-    CardboardView cardboardView;
+    GvrView gvrView;
 
     final int DEFAULT_BACKGROUND = R.drawable.bg;
 
@@ -81,9 +81,9 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         setContentView(R.layout.activity_main);
 
         cancelUpdate = false;
-        cardboardView = (CardboardView) findViewById(R.id.cardboard_view);
-        cardboardView.setRenderer(new RenderBox(this, this));
-        setCardboardView(cardboardView);
+        gvrView = (GvrView) findViewById(R.id.gvr_view);
+        gvrView.setRenderer(new RenderBox(this, this));
+        setGvrView(gvrView);
         vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
     }
 
@@ -133,7 +133,7 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
         for (int i = 0; i < GRID_Y; i++) {
             for (int j = 0; j < GRID_X; j++) {
                 if (count < images.size()) {
-                    Thumbnail thumb = new Thumbnail(cardboardView);
+                    Thumbnail thumb = new Thumbnail(gvrView);
                     thumbnails.add(thumb);
 
                     Transform image = new Transform();
@@ -374,14 +374,14 @@ public class MainActivity extends CardboardActivity implements IRenderBox {
             public void run() {
 
                 UnlitTexMaterial bgMaterial = (UnlitTexMaterial) photosphere.getMaterial();
-                image.loadFullTexture(cardboardView);
+                image.loadFullTexture(gvrView);
                 if (image.isPhotosphere) {
                     bgMaterial.setTexture(image.textureHandle);
                     screen.enabled = false;
                 } else {
                     bgMaterial.setTexture(bgTextureHandle);
                     screen.enabled = true;
-                    image.show(cardboardView, screen);
+                    image.show(gvrView, screen);
                 }
 
             }

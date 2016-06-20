@@ -3,7 +3,7 @@ package com.cardbookvr.gallery360;
 import com.cardbookvr.gallery360.RenderBoxExt.components.Plane;
 import com.cardbookvr.renderbox.components.Sphere;
 import com.cardbookvr.renderbox.materials.UnlitTexMaterial;
-import com.google.vrtoolkit.cardboard.CardboardView;
+import com.google.vr.sdk.base.GvrView;
 
 /**
  * Created by Schoen and Jonathan on 4/21/2016.
@@ -14,9 +14,9 @@ public class Thumbnail {
     public Plane plane;
     public Image image;
     public Sphere sphere;
-    CardboardView cardboardView;
+    GvrView cardboardView;
 
-    public Thumbnail(CardboardView cardboardView) {
+    public Thumbnail(GvrView cardboardView) {
         this.cardboardView = cardboardView;
     }
 
